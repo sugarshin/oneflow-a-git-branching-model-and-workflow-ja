@@ -79,19 +79,19 @@ OneFlow はかなり柔軟性がありますが、すべてのプロジェクト
 
 ### The main branch
 
-Like was explained before, the workflow uses only one eternal branch. The name doesn’t matter, and can be anything you want. We will use `master` in this description, as it’s probably the most common name, and is already a Git convention, but you can also use, for example, `current`, `default`, `mainline`, or anything else.
+前述したように、ワークフローは1つの永久的なブランチのみを使用します。この名前は重要ではなく、何でもかまいません。この説明では `master` ブランチを使用します。おそらく最も一般的な名前であり、すでに Git の慣例ですが、たとえば、 `current` 、`default` 、 `mainline` などを使用することもできるでしょう。
 
 ### Feature branches
 
-![](img/oneflow/feature-branch-with-labels.png)
+<img src="img/oneflow/feature-branch-with-labels.png" style="max-width: 18%; margin-left: 20px; float: right;">
 
-Feature branches (also sometimes called topic branches) are where the day-to-day development work happens – hence, they are by far the most common of all the support branches. They are used to develop new features and bugfixes for the upcoming release. They are usually named similarly to `feature/my-feature`.
+フィーチャーブランチ（トピックブランチとも呼ばれます）は、日々の開発作業が行われる場所です。そのため、すべてのサポートブランチの中で最も一般的です。これらは、次のリリースの新機能とバグ修正の開発に使用されます。それらは通常、 `feature/my-feature` のように命名されます。
 
-Feature branches often exist only in the developer’s repository, and are never pushed – however, if there are multiple people working on one feature, or if the feature will take a long time to develop, it’s typical to push them to the central repository (if only to make sure the code isn’t lost with a single disk failure).
+フィーチャーブランチは多くの場合、開発者のリポジトリにのみ存在し、プッシュされません。ただし、1つのフィーチャーで複数の人が作業している場合、またはフィーチャー開発に長い時間がかかる場合は、リモートリポジトリにプッシュするのが一般的です (if only to make sure the code isn’t lost with a single disk failure) 。
 
 #### Starting a feature branch
 
-To start a feature branch, simply create a new branch from `master`:
+フィーチャーブランチを開始するには、 `master` から新しいブランチを作成するだけです：
 
 ```bash
 $ git checkout -b feature/my-feature master
@@ -99,13 +99,13 @@ $ git checkout -b feature/my-feature master
 
 #### Finishing a feature branch
 
-Once work on the given feature is done, it needs to be integrated back into `master`. There are several ways this can be accomplished.
+作業が完了したら、それを `master` にマージする必要があります。これを行うにはいくつかの方法があります。
 
-**Note:** the choice of the feature branch integration method is immaterial as far as the workflow is concerned. It should be based on personal or team preference, however the branching model will work exactly the same, regardless of which option is chosen. My personal recommendation is to use option #1.
+**Note:** フィーチャーフォンブランチのマージ方法は重要ではありません。個人またはチームの好みに基づく必要がありますが、どのマージ方法を選択しても、このブランチモデルはまったく同じように機能します。私の個人的な推奨は、 [Option #1 – rebase](#option-#1---rebase) を使用することです。
 
-##### Option #1 – rebase
+##### Option #1 - rebase
 
-This method uses Git’s `rebase` command (with the `-i`, meaning interactive, switch) to integrate the feature branch with `master`:
+この方法は、 Git の `rebase` コマンド ( `-i` オプションつき）を使用して、フィーチャーブランチを `master` にマージします：
 
 ```bash
 $ git checkout feature/my-feature
@@ -116,24 +116,24 @@ $ git push origin master
 $ git branch -d feature/my-feature
 ```
 
-If you’re not yet well acquainted with the `rebase` command, I recommend [this chapter](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History) from the Pro Git SCM book.
+もし `rebase` コマンドに慣れていない場合は、 Pro Git SCM book の[この章](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History)をお勧めします。
 
-Here’s a visual illustration of how that method works:
+以下は、その方法がどのように機能するかをビジュアライズしたもので：
 
 ![](img/oneflow/feature-branch-rebase-final.png)
 
-Advantages of this method:
+この方法の利点：
 
-- Rebasing before integrating with master allows you to clean up the branch history before making it public, resulting in better final history landing on `master`.
-- Linear history makes things simpler and easier to find, especially when looking at the per-file history.
+- `master` にマージする前にリベースすると、ブランチの履歴を公開する前にきれいにできるため、最終的な履歴がよりよくなります
+- Linear history を使用すると、特にファイルごとの履歴を見るときに、物事をより簡単に見つけることができます
 
-Disadvantages:
+欠点：
 
-- Reverting the entire feature requires reverting multiple commits.
+- フィーチャー全体をリバートするには、複数のコミットをリバートする必要があります
 
 ##### Option #2 – merge –no-ff
 
-This is the method that GitFlow advocates.
+これは GitFlow が推奨する方法です。
 
 ```bash
 $ git checkout master
@@ -142,22 +142,22 @@ $ git push origin master
 $ git branch -d feature/my-feature
 ```
 
-Visually:
+図：
 
 ![](img/oneflow/feature-branch-merge-final.png)
 
-Advantages of this method:
+この方法の利点：
 
-- Reverting the entire feature requires reverting only one commit (the merge commit).
+- フィーチャー全体をリバートするには、1つのコミット（マージコミット）のみをリバートするだけ
 
-Disadvantages:
+欠点：
 
-- The feature branch history, which is often messy, gets put directly on `master`.
-- The proliferation of merge commits (especially as the number of developers on a project grows) makes the history unmanageable.
+- 履歴のきれいではないフィーチャーフォンブランチの履歴は、 `master` にそのまま反映される
+- マージコミットが急増すると、履歴が管理できなくなります（特にプロジェクトの開発者の数が増えるにつれて）
 
 ##### Option #3 – rebase + merge –no–ff
 
-This method is a combination of the previous two, trying to keep their advantages while simultaneously getting rid of the disadvantages:
+この方法は、前の2つを組み合わせて、それらの利点を維持しつつ、同時に欠点を取り除きます：
 
 ```bash
 $ git checkout feature/my-feature
@@ -168,20 +168,20 @@ $ git push origin master
 $ git branch -d feature/my-feature
 ```
 
-Visually:
+図：
 
 ![](img/oneflow/feature-branch-rebase-and-merge-final.png)
 
-Advantages of this method:
+この方法の利点：
 
-- Clean and almost linear history.
-- Easy to revert an entire feature with one commit.
+- クリーンでほぼ線形の履歴
+- 1回のコミットでフィーチャー全体を簡単にリバートすることができます
 
-Disadvantages:
+欠点：
 
-- It’s difficult to enforce this method programmatically, so it has to rely on best-effort convention.
+- この方法をプログラムで強制することは難しいため、ベストエフォートの規則に依存する必要があります
 
-Finally, regardless of the method used, if the feature branch was pushed to the central repository, you need to now remove it:
+最後に、使用するマージ方法に関係なく、フィーチャーブランチがリモートリポジトリにプッシュされた場合は、それを削除する必要があります。
 
 ```bash
 $ git push origin :feature/my-feature
@@ -189,15 +189,16 @@ $ git push origin :feature/my-feature
 
 ### Release branches
 
-Release branches are created to prepare the software for being released. Obviously, what exactly that means varies on a project-per-project basis. This could be as simple as bumping the version number in the configuration, or involve things like code freezes, producing Release Candidates, and having a full QA process. The important thing is all that happens on a separate branch, so that day-to-day development can continue as usual on `master`.
+リリースブランチはソフトウェアをリリースする準備をするために作成されます。もちろん、それが正確に何を意味するかは、プロジェクトごとに異なります。
+これは、コンフィグレーションのバージョンナンバーを上げるだけの単純なものでもいいですし、コードのフリーズ、 Release Candidate の作成、完全な QA プロセスのようなものでもかまいません。重要なことは、すべて別のブランチで行われるということで、日々の開発を通常どおり `master` で続行できます。
 
-The naming convention for these is `release/<version-number>`.
+これらの命名規則は `release/<version-number>` です。
 
 #### Starting a release branch
 
-Release branches also start from `master`, however they often don’t start from the tip – instead, they have their origin in whatever commit on `master` you think contains all of the features that you want to include in the given release.
+リリースブランチも `master` から開始しますが、多くの場合は tip から開始するのではなく、 `master` 上のコミットの中で、そのリリースに含めたい機能がすべて含まれていると思われるコミットから開始します。
 
-For example, here we start the branch for the version `2.3.0` release on a commit with the hash `9efc5d`:
+例えば、ここではバージョン `2.3.0` リリースのブランチを `9efc5d` のコミットハッシュから開始しています：
 
 ```bash
 $ git checkout -b release/2.3.0 9efc5d
@@ -205,7 +206,7 @@ $ git checkout -b release/2.3.0 9efc5d
 
 #### Finishing a release branch
 
-Once whatever process you use for releasing is finished, the tip of the branch is tagged with the version number. After that, the branch needs to be merged into `master` to be versioned permanently:
+リリースに使用するプロセスがすべて完了すると、ブランチの tip にバージョン番号のタグが付けられます。その後、ブランチを `master` にマージして、永続的にバージョン管理する必要があります：
 
 ```bash
 $ git checkout release/2.3.0
@@ -216,11 +217,11 @@ $ git push --tags origin master
 $ git branch -d release/2.3.0
 ```
 
-Here’s a diagram illustrating the above commands (assuming the release took two commits):
+上記のコマンドを示す図は次のとおりです（リリースで2つのコミットが行われたと想定しています）：
 
 ![](img/oneflow/release-branch-merge-final.png)
 
-Again, if you pushed the release branch to the central repository, you now need to delete it:
+繰り返しになりますが、リリースブランチをリモートリポジトリにプッシュした場合は、ここでブランチを削除する必要があります：
 
 ```bash
 $ git push origin :release/2.3.0
@@ -230,11 +231,13 @@ $ git push origin :release/2.3.0
 
 Hotfix branches are very similar to release branches – they result in a new version of the project being released. Where they differ is their intentions – while release branches signify a planned production milestone, hotfix branches are most often an unwanted but necessary exception to the usual release cadence, typically because of some critical defect found in the latest release that needs to be fixed as soon as possible.
 
-They are named `hotfix/<version-number>`. Note that if you use [Semantic Versioning](http://semver.org/), regular releases bump either the Major or Minor number, while hotfixes bump the Patch number.
+Hotfix ブランチはリリースブランチと非常によく似ており、プロジェクトの新しいバージョンがリリースされます。それらが異なるのは意図的です。リリースブランチは計画されたマイルストーンを示しますが、 Hotfix ブランチは通常のリリースケイデンスに対して望ましくないが必要な例外です。通常、最新のリリースで重大なバグが見つかり、すぐに修正する必要がある場合などに利用されます。
+
+それらは `hotfix/<version-number>` という名前です。 [セマンティックバージョニング](http://semver.org/) を使用する場合、通常のリリースではメジャーバージョンまたはマイナーバージョンのいずれかがバンプされ、 Hotfix ではパッチバージョンがバンプされます。
 
 #### Starting a hotfix branch
 
-Hotfix branches are cut from the commit that the latest version tag points to. Continuing our example from the release branch:
+Hotfix ブランチは、最新バージョンのタグが指すコミットから作られます。リリースブランチからの例：
 
 ```bash
 $ git checkout -b hotfix/2.3.1 2.3.0
@@ -253,13 +256,14 @@ $ git push --tags origin master
 $ git branch -d hotfix/2.3.1
 ```
 
-Here’s a visual illustration:
+図：
 
 ![](img/oneflow/hotfix-branch-merge-final.png)
 
-There is one special case when finishing a hotfix branch. If a release branch has already been cut in preparation for the next release before the hotfix was finished, you need to merge the hotfix branch not to `master`, but to the release branch. Otherwise, the new release will bring back the original bug that the hotfix corrected. The fix will eventually get to `master` – when the release branch is merged back to it.
+Hotfix ブランチを終了する場合、1つの特別なケースがあります。 Hotfix が完了する前に次のリリースに備えてリリースブランチが既にカットされている場合、 Hotfix ブランチを `master` ではなくリリースブランチにマージする必要があります。それ以外の場合、新しいリリースでは、 Hotfix によって修正された元のバグが返されます。リリースブランチがマージされたときに修正は最終的に `master` にマージされます。
 
 As always, if the hotfix branch was pushed to the central repository, you need to remove it now:
+いつものように、 Hotfix ブランチがリモートリポジトリにプッシュされた場合は、ここで削除する必要があります。
 
 ```bash
 $ git push origin :hotfix/2.3.1
@@ -267,23 +271,24 @@ $ git push origin :hotfix/2.3.1
 
 ## Variation – develop + master
 
-There is one small wrinkle with the branching model described above. In order to find the latest production version of the code, you need to look at all of the tags in the repository, and checkout the latest one.
+上記のブランチモデルには1つの小さな問題があります。最新の Production バージョンのコードを見つけるためには、リポジトリ内のすべてのタグを確認し、最新のタグをチェックアウトする必要があります。
 
-This problem has a very simple solution. You add another, ‘latest’, long-lived branch, whose only purpose is to point to the last released commit. Each time the version number is bumped, the ‘latest’ branch is fast-forwarded to the newly created tag.
+この問題は非常に単純な解決策をあります。最後にリリースされたコミットを指し示すことのみを目的とする別の存続期間の長い「最新」ブランチを追加します。バージョンが上がるたびに、「最新」のブランチが新しく作成されたタグに fast-forwarded されます。
 
-So, that’s all great, but there is one small issue left. It would be very cool, especially for open-source projects, if the default branch that people got when cloning the repository was this ‘latest’ branch, which contains stable code, instead of the ‘working’ (what was called `master` in the above description) branch, which contains the work-in-progress on the yet-unreleased next version, which might not be very stable.
+これは素晴らしいことですが、一つだけ小さな問題が残っています。特にオープンソースプロジェクトの場合、リポジトリをクローンするときにデフォルトブランチがこの「最新」のブランチになっていて、安定したコードが含まれているのではなく、「working」（上記の説明では `master` と呼ばれている）ブランチにはまだリリースされていない次のバージョンの進行中の作業が含まれていて、あまり安定していないかもしれないのです
 
-The simplest solution to this problem is to take advantage of the fact that `master` is the default branch in Git. So, we call the ‘latest’ branch `master`. However, that means we need to find a new name for the ‘working’ branch. In this description, we will re-use the GitFlow convention, and call it `develop` (of course, you are free to call it whatever you want in your project).
+この問題の最も単純な解決策は、 `master` が Git のデフォルトブランチであるという事実を利用することです。つまり、「最新」のブランチを `master` と呼ぶことです。
+しかし、これでは「working」ブランチの新しい名前を見つけなければなりません。この説明では、 GitFlow の規約を利用して `develop` と呼ぶことにします (もちろん、プロジェクト内での呼び方は自由です)。
 
-For clarity, I will show all of the workflow operations again, this time using this new naming. However, I want to emphasize that, other than a slight name change and the introduction of a new ‘marker’ branch, the workflow is exactly the same as was described above.
+わかりやすいように、今回はこれらの新しい名前を使用して、ワークフローの操作を再度説明します。ただし、若干の名前の変更と新しい「marker」ブランチの導入を除けば、ワークフローは上記と全く同じであることを強調しておきます。
 
 ### The main branches
 
-This variation uses two branches: `develop`, which plays the same role as `master` above, and `master`, which points at the latest release tag.
+このバリエーションでは、2つのブランチを使用します。上の `master` と同じ役割を果たす `develop` と、最新のリリースタグを指す `master` です。
 
 ### Feature branches
 
-Feature branches work exactly the same as already explained, except you need to substitute `master` with `develop` in the description above.
+フィーチャーブランチの動作は、上の説明で `master` を `develop` に置き換える必要があることを除けば、すでに説明したものとまったく同じです。
 
 #### Starting a feature branch
 
@@ -326,7 +331,7 @@ $ git branch -d feature/my-feature
 
 ### Release branches
 
-Release branches work the same as described above (with `master` substituted for `develop`, of course), except one small detail. There is an extra step when finishing the release branch: fast-forwarding the marker branch to the newly created release tag.
+リリースブランチは上で説明したのと同じように動作します（`master` を `develop` に置き換えています）。リリースブランチを終了する際には、「marker」ブランチを新しく作成されたリリースタグに fast-forwarding するという追加のステップがあります。
 
 #### Starting a release branch
 
@@ -345,24 +350,24 @@ $ git push --tags origin develop
 $ git branch -d release/2.3.0
 ```
 
-And here is the extra step – fast-forwarding `master` to the latest release tag:
+そして、ここに追加のステップがあります - `master` を最新のリリースタグに fast-forwarding します：
 
 ```bash
 $ git checkout master
 $ git merge --ff-only 2.3.0
 ```
 
-Here’s a visualization of the state of the repository after finishing the release branch:
+リリースブランチを終えた後のリポジトリの状態を可視化したものがこちらです：
 
 ![](img/oneflow/develop-release-branch-merge.png)
 
 ### Hotfix branches
 
-Hotfix branches, because they result in publishing a new version as well, also require the additional step of fast-forwarding `master` to the newly created tag.
+Hotfix のブランチでは、新しいバージョンも公開されるため、`master` を新しく作成されたタグに fast-forwarding するという追加のステップも必要になります。
 
 #### Starting a hotfix branch
 
-Because `master` always tracks the latest tag, creating a hotfix branch is a tiny bit easier in this variant (note however that you still need to look at the tags to determine what the previous version number was, in order to name your hotfix branch correctly):
+`master` は常に最新のタグをトラックするので、このバージョンでは Hotfix ブランチの作成が少しだけ簡単になりました（ただし、 Hotfix ブランチの名前を正しく付けるためには、タグを見て前のバージョン番号を確認する必要があります)：
 
 ```bash
 $ git checkout -b hotfix/2.3.1 master
@@ -379,20 +384,20 @@ $ git push --tags origin develop
 $ git branch -d hotfix/2.3.1
 ```
 
-And here is the additional step of fast-forwarding `master` to the latest release tag:
+そして、ここに `master` を最新のリリースタグに fast-forwarding する追加のステップがあります。
 
 ```bash
 $ git checkout master
 $ git merge --ff-only 2.3.1
 ```
 
-If we continue our release example, the visual illustration looks something like this:
+図はこのようになります。
 
 ![](img/oneflow/develop-hotfix-branch-merge-final.png)
 
 ## Summary
 
-So, this is OneFlow in a nutshell. If you have any questions about the workflow, or if something is unclear in the description, please let me know in the comments below. I’ll try to answer as best as I can.
+これが OneFlow の簡単な説明です。ワークフローについてわからないことがあったり、説明で不明な点があれば、下のコメント欄で教えてください。出来る限りお答えします。
 
 I also wanted to ask you, dear reader, one thing. GitFlow has a [set of command-line tools that help with managing the workflow](https://github.com/nvie/gitflow). Personally, I’m not a huge fan of that, as I think relying on the tools makes people never learn the actual concepts behind the workflow they’re using, and when things go wrong (which they seem to invariably do with these tools – for example, if you happen to execute the commands in the wrong order), they have no idea how to fix it, and wind up with their repository in a really weird state. However, I also recognize that these tools help with the adoption of the workflow, and are useful when, for example, trying to enforce team-wide standards.
 
